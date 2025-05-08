@@ -10,6 +10,10 @@ public class Knight extends Piece {
 
     @Override
     public ArrayList<Move> possibleMoves(int x, int y, Board board) {
+        ArrayList<Move> moves = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+
+        }
         return null;
     }
 }
