@@ -13,10 +13,12 @@ public class Game {
         isWhiteTurn = true;
     }
 
-    public void play(){}
+    public void play(){
+
+    }
 
     public void undo(){
-
+        Move oldMove = getLast();
     }
 
     public void display(){}
