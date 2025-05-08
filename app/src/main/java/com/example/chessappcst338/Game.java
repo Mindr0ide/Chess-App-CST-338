@@ -15,11 +15,13 @@ public class Game {
 
     public void play(){}
 
-    public void undo(){}
+    public void undo(){
+
+    }
 
     public void display(){}
 
     public Move getLast(){
-        return history.peek();
+        return history.pop();
     }
 }

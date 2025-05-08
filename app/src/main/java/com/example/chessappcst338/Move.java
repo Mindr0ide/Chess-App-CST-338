@@ -11,15 +11,15 @@ public class Move {
         this.piece = piece;
     }
 
-    public getX() {
+    public int getX() {
         return x;
     }
 
-    public getY() {
+    public int getY() {
         return y;
     }
 
-    public getPiece() {
+    public Piece getPiece() {
         return piece;
     }
 }
