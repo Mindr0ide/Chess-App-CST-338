@@ -32,13 +32,15 @@ public class Board {
         setPieceAt(7,7,new Rook("white"));
     }
     public Piece getPieceAt (int x, int y){
-        if (x <= 7 && x >= 0 && y <= 7 && y >= 0)
+        if (x <= 7 && x >= 0 && y <= 7 && y >= 0){
             return board.get(y).get(x);
+        }
         return null;
     }
     public void setPieceAt (int x, int y, Piece piece){
-        if (x <= 7 && x >= 0 && y <= 7 && y >= 0)
+        if (x <= 7 && x >= 0 && y <= 7 && y >= 0){
             board.get(y).set(x, piece);
+        }
     }
 
 }
