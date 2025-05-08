@@ -20,6 +20,7 @@ public class Board {
         setPieceAt(0,7,new Rook("black"));
         for (int i = 0; i < 8; i++)
             setPieceAt(1,i,new Pawn("black"));
+
         for (int i = 0; i < 8; i++)
             setPieceAt(6,i,new Pawn("white"));
         setPieceAt(7,0,new Rook("white"));

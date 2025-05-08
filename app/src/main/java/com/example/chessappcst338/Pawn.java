@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public class Pawn extends Piece {
 
-    public Pawn(String color) {
-        super(color, "pawn");
+    public Pawn(String color, int x, int y) {
+        super(color, "pawn", x, y);
     }
 
     @Override
@@ -15,6 +15,10 @@ public class Pawn extends Piece {
         int start = 2 * dir;
         int normalized = ((start % 10) + 10) % 10;
 
+        if (y == normalized && board.getPieceAt(x, y + dir) == null
+                && board.getPieceAt(x, y + dir * 2) == null) {
+            moves.add(new Move(x, y + dir * 2, this));
+        }
         if (y + dir >= 0 && y + dir < 8 && board.getPieceAt(x, y + 1) == null) {
             moves.add(new Move(x, y + dir, this));
         }
@@ -33,6 +37,6 @@ public class Pawn extends Piece {
             }
         }
 
-        return null;
+        return moves;
     }
 }
