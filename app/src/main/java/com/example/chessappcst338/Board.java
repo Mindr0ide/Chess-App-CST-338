@@ -41,6 +41,7 @@ public class Board {
     public void setPieceAt (int x, int y, Piece piece){
         if (x <= 7 && x >= 0 && y <= 7 && y >= 0){
             board.get(y).set(x, piece);
+            piece.setPos(x, y);
         }
     }
 

@@ -15,45 +15,29 @@ public class Bishop extends Piece {
 
         while (true) {
             for (int i = 0; i < directions.length; i++) {
-                int newX = x + directions[i][0];
-                int newY = y + directions[i][1];
+                int j = 0;
+                while(true){
+                    int newX = x + directions[i][0] * j;
+                    int newY = y + directions[i][1] * j;
 
-                if (newX < 0 || newX > 7 || newY < 0 || newY > 7) {
-                    break;
-                }
-
-                Piece pieceAtNewPosition = board.getPieceAt(newX, newY);
-                if (pieceAtNewPosition == null) {
-                    moves.add(new Move(x, y, newX, newY));
-                } else if (!pieceAtNewPosition.getColor().equals(this.getColor())) {
-                    moves.add(new Move(x, y, newX, newY));
-                    break;
-                } else {
-                    break;
+                    if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
+                        Piece piece = board.getPieceAt(newX, newY);
+                        if (piece == null) {
+                            moves.add(new Move(newX, newY, this));
+                            j++;
+                        } else if (!piece.getColor().equals(this.getColor())) {
+                            moves.add(new Move(newX, newY, this));
+                            break;
+                        } else {
+                            break;
+                        }
+                    } else {
+                        break;
+                    }
+                    j++;
                 }
             }
         }
-
-        // while (true) {
-        //     for (int i = 0; i < directions.length; i++) {
-        //         int newX = x + directions[i][0];
-        //         int newY = y + directions[i][1];
-
-        //         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
-        //             Piece piece = board.getPieceAt(newX, newY);
-        //             if (piece == null) {
-        //                 moves.add(new Move(newX, newY, this));
-        //             } else if (!piece.getColor().equals(this.getColor())) {
-        //                 moves.add(new Move(x, y, this));
-        //                 break;
-        //             } else {
-        //                 break;
-        //             }
-        //         } else {
-        //             break;
-        //         }
-        //     }
-        // }
 
         return moves;
         
