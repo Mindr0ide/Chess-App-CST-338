@@ -10,7 +10,7 @@ public class Rook extends Piece {
 
     @Override
     public ArrayList<Move> possibleMoves(int x, int y, Board board) {
-               ArrayList<Move> moves = new ArrayList<>();
+        ArrayList<Move> moves = new ArrayList<>();
         int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
         for (int i = 0; i < directions.length; i++) 
