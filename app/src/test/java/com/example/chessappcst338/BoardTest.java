@@ -10,26 +10,26 @@ public class BoardTest extends TestCase {
 
     public void testReset() {
         Board board = new Board();
-        board.reset();
+        board.resetBoard();
 
         // Check if the pieces are set correctly
-        assertEquals("black", board.getPieceAt(0, 0).getColor());
-        assertEquals("rook", board.getPieceAt(0, 0).getName());
+        assertEquals("black", board.getPieceAt(new Position(0, 0)).getColor());
+        assertEquals("rook", board.getPieceAt(new Position(0, 0)).getName());
 
-        assertEquals("black", board.getPieceAt(0, 0).getColor());
-        assertEquals("knight", board.getPieceAt(0, 0).getName());
+        assertEquals("black", board.getPieceAt(new Position(0, 0)).getColor());
+        assertEquals("knight", board.getPieceAt(new Position(0, 0)).getName());
         
 
     }
 
     public void testGetPieceAt() {
         Board board = new Board();
-        board.reset();
+        board.resetBoard();
 
-        assertEquals("black", board.getPieceAt(0, 0).getColor());
-        assertEquals("rook", board.getPieceAt(0, 0).getName());
+        assertEquals("black", board.getPieceAt(new Position(0, 0)).getColor());
+        assertEquals("rook", board.getPieceAt(new Position(0, 0)).getName());
 
-        assertNull(board.getPieceAt(2, 2));
+        assertNull(board.getPieceAt(new Position(2, 2)));
     }
 
     public void testSetPieceAt() {

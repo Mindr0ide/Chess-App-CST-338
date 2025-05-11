@@ -3,36 +3,46 @@ package com.example.chessappcst338;
 import java.util.ArrayList;
 
 public class Pawn extends Piece {
-
     public Pawn(String color) {
         super(color, "pawn");
     }
 
     @Override
-    public ArrayList<Move> possibleMoves(int x, int y, Board board) {
+    public ArrayList<Move> getPossibleMoves(Position position, Board board) {
         ArrayList<Move> moves = new ArrayList<>();
-        int dir = color.equals("white") ? -1 : 1;
-        int start = 2 * dir;
-        int normalized = ((start % 10) + 10) % 10;
+        int direction = color.equals("white") ? -1 : 1;
+        int startRow = color.equals("white") ? 6 : 1;
 
-        if (y + dir >= 0 && y + dir < 8 && board.getPieceAt(x, y + 1) == null) {
-            moves.add(new Move(x, y + dir, this));
-        }
+        // Forward move
+        if (board.getPieceAt(new Position(getX(), getY() + direction)) == null) {
+            moves.add(new Move(new Position(getX(), getY()), new Position(getX(), getY() + direction)));
 
-        if (x - 1 >= 0 && y + dir >= 0 && y + dir < 8) {
-            Piece diagLeft = board.getPieceAt(x - 1, y + dir);
-            if (diagLeft != null && !diagLeft.color.equals(this.color)) {
-                moves.add(new Move(x - 1, y + 1, this));
+            // Double move from starting position
+            if (getX() == startRow && board.getPieceAt(new Position(getX(), getY() + 2 * direction)) == null) {
+                moves.add(new Move(new Position(getX(), getY()), new Position(getX(), getY() + 2 * direction)));
             }
         }
 
-        if (x + 1 >= 0 && y + dir >= 0 && y + dir < 8) {
-            Piece diagRight = board.getPieceAt(x + 1, y + dir);
-            if (diagRight != null && !diagRight.color.equals(this.color)) {
-                moves.add(new Move(x + 1, y + 1, this));
+        // Capture moves
+        addCaptureMove(getX(), getY(), getX() - 1, getY() + direction, board, moves);
+        addCaptureMove(getX(), getY(), getX() + 1, getY() + direction, board, moves);
+
+        // TODO: Implement en passant
+
+        return moves;
+    }
+
+    private void addCaptureMove(int fromX, int fromY, int toX, int toY, Board board, ArrayList<Move> moves) {
+        if (toX >= 0 && toX < 8 && toY >= 0 && toY < 8) {
+            Piece target = board.getPieceAt(new Position(toX, toY));
+            if (target != null && !target.getColor().equals(color)) {
+                moves.add(new Move(new Position(fromX, fromY), new Position(toX, toY)));
             }
         }
+    }
 
-        return null;
+    @Override
+    public String getSymbol() {
+        return color.equals("white") ? "♙" : "♟";
     }
 }

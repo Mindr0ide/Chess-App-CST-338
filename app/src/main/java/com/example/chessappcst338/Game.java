@@ -1,42 +1,133 @@
 package com.example.chessappcst338;
 
 import java.util.ArrayList;
-import java.util.Scanner;
 import java.util.Stack;
 
 public class Game {
     private Board board;
     private Stack<Move> history;
     private boolean isWhiteTurn;
+    private GameStatus status;
 
-    public Game(){
-//        board = new Board()
-        history = new Stack<>();
-        isWhiteTurn = true;
+    public Game() {
+        this.board = new Board();
+        this.history = new Stack<>();
+        this.isWhiteTurn = true;
+        this.status = GameStatus.IN_PROGRESS;
+        initializeBoard();
     }
 
-    public void play(){
-//        display();
-//        System.out.print("What piece do you want to play?");
-//        int input = in.nextInt();
-//        Piece currentPiece = board.getPieceAt(input);
-//        System.out.print("Your possible moves are:");
-//        ArrayList<Move> possibleMoves = currentPiece.possibleMoves(input);
-//        for (int i = 0; i < possibleMoves.size(); i++) {
-//            System.out.println(possibleMoves.get(i));
-//        }
-//        int move = in.nextInt();
-//        board.setPieceAt(move);
-
+    private void initializeBoard() {
+        // Set up the initial chess board configuration
+        board.resetBoard();
     }
 
-    public void undo(){
-        Move oldMove = getLast();
+    public void play(Move move) {
+        if (status != GameStatus.IN_PROGRESS) {
+            throw new IllegalStateException("Game is already over");
+        }
+
+        if (!isValidMove(move)) {
+            throw new IllegalArgumentException("Invalid move");
+        }
+
+        // Execute the move
+        Piece capturedPiece = board.movePiece(move);
+        history.push(move);
+
+        // Store captured piece in the move object
+        move.setCapturedPiece(capturedPiece);
+
+        // Check for game-ending conditions
+        checkGameStatus();
+
+        // Switch turns
+        isWhiteTurn = !isWhiteTurn;
     }
 
-    public void display(){}
+    public void undo() {
+        if (history.isEmpty()) {
+            throw new IllegalStateException("No moves to undo");
+        }
 
-    public Move getLast(){
-        return history.pop();
+        Move lastMove = history.pop();
+        board.undoMove(lastMove);
+        isWhiteTurn = !isWhiteTurn;
+        status = GameStatus.IN_PROGRESS; // Reset status if game was over
+    }
+
+    private boolean isValidMove(Move move) {
+        // Basic validation
+        if (move == null || move.getFrom() == null || move.getTo() == null) {
+            return false;
+        }
+
+        Piece piece = board.getPieceAt(move.getFrom());
+        boolean isWhite;
+        if (piece.getColor().equals("white")){
+            isWhite = true;
+        }
+        else {
+            isWhite = false;
+        }
+
+        // Check if piece exists and belongs to current player
+        if (piece == null || isWhite != isWhiteTurn) {
+            return false;
+        }
+
+        // Add more specific validation logic here
+        // For example: check if the move follows chess rules for this piece
+
+        return true;
+    }
+
+    private void checkGameStatus() {
+        // Check for checkmate, stalemate, etc.
+        String color;
+        if (!isWhiteTurn) {
+            color = "black";
+        }
+        else {
+            color = "white";
+        }
+        if (board.isCheckmate(color)) {
+            status = isWhiteTurn ? GameStatus.WHITE_WON : GameStatus.BLACK_WON;
+        } else if (board.isStalemate(color)) {
+            status = GameStatus.STALEMATE;
+        } else if (board.isInsufficientMaterial()) {
+            status = GameStatus.DRAW;
+        }
+        // Add other game-ending conditions
+    }
+
+    public void display() {
+        board.display();
+        System.out.println("Current turn: " + (isWhiteTurn ? "White" : "Black"));
+        System.out.println("Game status: " + status);
+    }
+
+    public Board getBoard() {
+        return board;
+    }
+
+    public boolean isWhiteTurn() {
+        return isWhiteTurn;
+    }
+
+    public GameStatus getStatus() {
+        return status;
+    }
+
+    public Stack<Move> getHistory() {
+        return history;
+    }
+
+    public enum GameStatus {
+        IN_PROGRESS,
+        WHITE_WON,
+        BLACK_WON,
+        STALEMATE,
+        DRAW
     }
 }
