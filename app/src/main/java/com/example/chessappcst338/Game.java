@@ -7,63 +7,52 @@ public class Game {
     private Stack<Move> history;
     private boolean isWhiteTurn;
 
-    public Game(){
+    public Game() {
         board = new Board();
-        //board.reset();
+        board.reset(); // Active l'initialisation complète du plateau
         history = new Stack<>();
         isWhiteTurn = true;
     }
 
-    public void play(Move move){
+    public void play(Move move) {
+        // Enregistre le mouvement dans l'historique
+        history.push(move);
+
+        // Place la pièce sur la nouvelle case
         board.setPieceAt(move.getToX(), move.getToY(), move.getPiece());
-//        board.reset();
-//        while(true){
-//            this.display();
-//            //Move move;   //  = display.getMove(); ici c'est l'entroid ou on get le move de l'utilisateur
-//            if( isWhiteTurn && move.getPiece().getColor().equals("white") || // if the move is from the wright color
-//                !isWhiteTurn && move.getPiece().getColor().equals("black") ){
-//
-//                if(move.getPiece().possibleMoves(move.getX(), move.getY(), board).contains(move)){ // if the move is valid
-//
-//                    history.push(move);
-//                    board.setPieceAt(move.getX(), move.getY(), move.getPiece());
-//                    isWhiteTurn = !isWhiteTurn;
-//                }
-//                else{
-//                    System.out.println("Invalid move!");
-//                    continue;
-//                }
-//
-//            } else {
-//                System.out.println("It's not your turn!");
-//            }
-//
-//            if(isCheckmate(board)){ // c'est une fct qui existe pas encore mais qui va check si le roi est en echec et mat
-//                System.out.println("Checkmate! " + (isWhiteTurn ? "Black" : "White") + " wins!");
-//                break;
-//            }
-//        }
+
+        // Vide la case de départ
+        board.setPieceAt(move.getFromX(), move.getFromY(), null);
+
+        // Change le tour
+        isWhiteTurn = !isWhiteTurn;
     }
 
-    public void undo(){
-        if(!history.isEmpty()){
+    public void undo() {
+        if (!history.isEmpty()) {
             Move lastMove = history.pop();
-            // TODO: undo the move on the board
-            board.setPieceAt(lastMove.getFromX(), lastMove.getFromY(), lastMove.getPiece()); // put the piece back on the board
 
-            board.setPieceAt(lastMove.getToX(), lastMove.getToY(), lastMove.getCapturedPiece()); // put the captured piece back on the board
+            // Remet la pièce à sa position d’origine
+            board.setPieceAt(lastMove.getFromX(), lastMove.getFromY(), lastMove.getPiece());
 
+            // Restaure la pièce capturée (ou null)
+            board.setPieceAt(lastMove.getToX(), lastMove.getToY(), lastMove.getCapturedPiece());
+
+            // Rechange le tour
             isWhiteTurn = !isWhiteTurn;
         } else {
             System.out.println("No moves to undo!");
         }
     }
 
-    public void display(){
-        
-    }
-
-    public Move getLast(){
-        return history.pop();
+    public void display() {
+        for (int y = 0; y < 8; y++) {
+            for (int x = 0; x < 8; x++) {
+                Piece p = board.getPieceAt(x, y);
+                if (p == null) System.out.print("- ");
+                else System.out.print(p.getName().charAt(0) + " ");
+            }
+            System.out.println();
+        }
     }
 }

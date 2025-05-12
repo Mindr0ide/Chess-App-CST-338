@@ -15,6 +15,7 @@ public class Move {
         this.toX = toX;
         this.toY = toY;
         this.piece = piece;
+        this.capturedPiece = capturedPiece;
     }
 
     public int getToX() {
