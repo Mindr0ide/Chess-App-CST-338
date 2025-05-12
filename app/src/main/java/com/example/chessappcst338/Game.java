@@ -15,16 +15,9 @@ public class Game {
     }
 
     public void play(Move move) {
-        // Enregistre le mouvement dans l'historique
         history.push(move);
-
-        // Place la pièce sur la nouvelle case
         board.setPieceAt(move.getToX(), move.getToY(), move.getPiece());
-
-        // Vide la case de départ
         board.setPieceAt(move.getFromX(), move.getFromY(), null);
-
-        // Change le tour
         isWhiteTurn = !isWhiteTurn;
     }
 
@@ -32,13 +25,10 @@ public class Game {
         if (!history.isEmpty()) {
             Move lastMove = history.pop();
 
-            // Remet la pièce à sa position d’origine
             board.setPieceAt(lastMove.getFromX(), lastMove.getFromY(), lastMove.getPiece());
 
-            // Restaure la pièce capturée (ou null)
             board.setPieceAt(lastMove.getToX(), lastMove.getToY(), lastMove.getCapturedPiece());
 
-            // Rechange le tour
             isWhiteTurn = !isWhiteTurn;
         } else {
             System.out.println("No moves to undo!");

@@ -6,9 +6,12 @@ public class Board {
     private ArrayList<ArrayList<Piece>> board = new ArrayList<>();
 
     public void reset(){
-        for (int i = 0; i < 8; i++)
-            for (int j = 0; j < 8; j++)
-                this.setPieceAt(i,j,null);
+        for (int y = 0; y < 8; y++) {
+            ArrayList<Piece> row = new ArrayList<>();
+            for (int x = 0; x < 8; x++)
+                row.add(null);
+            board.add(row);
+        }
 
         setPieceAt(0,0,new Rook("black"));
         setPieceAt(0,1,new Knight("black"));

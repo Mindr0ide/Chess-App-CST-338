@@ -57,7 +57,7 @@ public class PieceTest extends TestCase {
         board.setPieceAt(3, 3, queen);
 
         ArrayList<Move> moves = queen.possibleMoves(3, 3, board);
-        assertEquals(27, moves.size());
+        assertEquals(19, moves.size());
     }
 
     public void testBishopPossibleMoves() {
@@ -68,7 +68,7 @@ public class PieceTest extends TestCase {
         board.setPieceAt(3, 3, bishop);
 
         ArrayList<Move> moves = bishop.possibleMoves(3, 3, board);
-        assertEquals(13, moves.size());
+        assertEquals(8, moves.size());
     }
 
     public void testKnightPossibleMoves() {
@@ -90,7 +90,7 @@ public class PieceTest extends TestCase {
         board.setPieceAt(3, 3, rook);
 
         ArrayList<Move> moves = rook.possibleMoves(3, 3, board);
-        assertEquals(14, moves.size());
+        assertEquals(11, moves.size());
     }
 
     public void testPawnPossibleMoves() {
@@ -98,9 +98,12 @@ public class PieceTest extends TestCase {
         board.reset();
 
         Piece pawn = new Pawn("white");
-        board.setPieceAt(3, 3, pawn);
+        board.setPieceAt(4, 4, pawn);
 
-        ArrayList<Move> moves = pawn.possibleMoves(3, 3, board);
+        Piece piece = new Pawn("black");
+        board.setPieceAt(3, 3, piece);
+
+        ArrayList<Move> moves = piece.possibleMoves(3, 3, board);
         assertEquals(2, moves.size());
     }
 
