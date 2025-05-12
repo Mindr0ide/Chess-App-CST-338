@@ -18,7 +18,8 @@ public class MainActivity extends AppCompatActivity {
     private Game game;
     private int selectedX = -1;
     private int selectedY = -1;
-    ArrayList<Move> currentPossibleMoves = new ArrayList<Move>();
+    private boolean isPieceSelected = false;
+    ArrayList<Move> currentPossibleMoves = new ArrayList<>();
 
     private static final int BOARD_SIZE = 8;
 
@@ -42,35 +43,36 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             String tag = (String) v.getTag();
-            int row = Character.getNumericValue(tag.charAt(7)); // Extract row from tag "square_00"
-            int col = Character.getNumericValue(tag.charAt(8)); // Extract column
+            int row = Character.getNumericValue(tag.charAt(7));
+            int col = Character.getNumericValue(tag.charAt(8));
 
             Piece clickedPiece = game.getBoard().getPieceAt(row, col);
-            System.out.println(row + col);
 
-            if (clickedPiece == null) {
-                return;
+            // Case 1: No piece currently selected
+            if (!isPieceSelected) {
+                // Only allow selecting pieces of the current turn's color
+                if (clickedPiece != null &&
+                        ((game.isWhiteTurn() && clickedPiece.getColor().equals("white")) ||
+                                (!game.isWhiteTurn() && clickedPiece.getColor().equals("black")))) {
+
+                    selectedX = row;
+                    selectedY = col;
+                    isPieceSelected = true;
+                    currentPossibleMoves = clickedPiece.possibleMoves(row, col, game.getBoard());
+                    //highlightPossibleMoves();
+                }
             }
-
-            // If we have a selected piece, try to move it
-            if (selectedX != -1 && selectedY != -1) {
+            // Case 2: Piece already selected - attempt to move
+            else {
+                // Check if this is a valid move destination
                 for (Move move : currentPossibleMoves) {
                     if (move.getToX() == row && move.getToY() == col) {
                         game.play(move);
-                        resetSelection();
                         updateBoardDisplay();
-                        return;
+                        break;
                     }
                 }
-            }
-
-            // Select a new piece if it's the correct color's turn
-            if (((clickedPiece.getColor().equals("white") && game.isWhiteTurn()) || (clickedPiece.getColor().equals("black") && !game.isWhiteTurn()))){
-                selectedX = row;
-                selectedY = col;
-                currentPossibleMoves = clickedPiece.possibleMoves(row, col, game.getBoard());
-                highlightPossibleMoves();
-            } else {
+                // Reset selection whether move was made or not
                 resetSelection();
             }
         }
@@ -187,27 +189,52 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setInitialPieces(Button square, int row, int col) {
-        // Set initial chess pieces (simplified version)
-        if (row == 0 || row == 7) { // Back row pieces
+        // Clear any existing text first
+        square.setText("");
+
+        // Black pieces (top rows)
+        if (row == 0) { // Black back row
             switch (col) {
                 case 0: case 7:
-                    square.setText(row == 0 ? "♖" : "♜"); // Rook
+                    square.setText("♜"); // Rook
                     break;
                 case 1: case 6:
-                    square.setText(row == 0 ? "♘" : "♞"); // Knight
+                    square.setText("♞"); // Knight
                     break;
                 case 2: case 5:
-                    square.setText(row == 0 ? "♗" : "♝"); // Bishop
+                    square.setText("♝"); // Bishop
                     break;
                 case 3:
-                    square.setText(row == 0 ? "♕" : "♛"); // Queen
+                    square.setText("♛"); // Queen
                     break;
                 case 4:
-                    square.setText(row == 0 ? "♔" : "♚"); // King
+                    square.setText("♚"); // King
                     break;
             }
-        } else if (row == 1 || row == 6) { // Pawns
-            square.setText(row == 1 ? "♙" : "♟");
+        } else if (row == 1) { // Black pawns
+            square.setText("♟");
+        }
+        // White pieces (bottom rows)
+        else if (row == 6) { // White pawns
+            square.setText("♙");
+        } else if (row == 7) { // White back row
+            switch (col) {
+                case 0: case 7:
+                    square.setText("♖"); // Rook
+                    break;
+                case 1: case 6:
+                    square.setText("♘"); // Knight
+                    break;
+                case 2: case 5:
+                    square.setText("♗"); // Bishop
+                    break;
+                case 3:
+                    square.setText("♕"); // Queen
+                    break;
+                case 4:
+                    square.setText("♔"); // King
+                    break;
+            }
         }
     }
 
@@ -263,15 +290,15 @@ public class MainActivity extends AppCompatActivity {
     private void resetSquareColors() {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
-                String buttonId = "square_" + (char)('a' + col) + (8 - row);
+                String buttonId = "square_" + row + col;
                 int resId = getResources().getIdentifier(buttonId, "id", getPackageName());
                 Button squareButton = findViewById(resId);
 
-                if ((row + col) % 2 == 0) {
-                    squareButton.setBackgroundColor(Color.parseColor("#F0D9B5"));
-                } else {
-                    squareButton.setBackgroundColor(Color.parseColor("#B58863"));
-                }
+//                if ((row + col) % 2 == 0) {
+//                    squareButton.setBackgroundColor(Color.parseColor("#F0D9B5"));
+//                } else {
+//                    squareButton.setBackgroundColor(Color.parseColor("#B58863"));
+//                }
             }
         }
     }
