@@ -16,12 +16,13 @@ public class Knight extends Piece {
                 {1, -2}, {2, -1}, {-1, -2}, {-2, -1}
         };
         for (int[] offset : offsets) {
-            int nx = x + offset[0];
-            int ny = y + offset[1];
-            if (nx >= 0 && nx < 8 && ny >= 0 && ny < 8) {
-                Piece target = board.getPieceAt(nx, ny);
+            int newX = x + offset[0];
+            int newY = y + offset[1];
+            if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
+                Piece target = board.getPieceAt(newX, newY);
                 if (target == null || !target.color.equals(this.color)) {
-                    moves.add(new Move(nx, ny, this));
+                    moves.add(new Move(x, y, newX, newY, this, board.getPieceAt(newX, newY)));
+
                 }
             }
         }

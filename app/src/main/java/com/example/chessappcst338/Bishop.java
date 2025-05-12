@@ -26,12 +26,13 @@ public class Bishop extends Piece {
                     Piece piece = board.getPieceAt(newX, newY);
                     if (piece == null) 
                     {
-                        moves.add(new Move(newX, newY, this));
+                        moves.add(new Move(x, y, newX, newY, this, board.getPieceAt(newX, newY)));
                         j++;
                     } 
                     else if (!piece.getColor().equals(this.getColor())) 
                     {
-                        moves.add(new Move(newX, newY, this));
+                        moves.add(new Move(x, y, newX, newY, this, board.getPieceAt(newX, newY)));
+
                         break;
                     } 
                     else 
