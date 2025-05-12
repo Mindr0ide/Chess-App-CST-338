@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Chess App CST338</string>
+    <string name="undo">undo</string>
+    <string name="play">play</string>
 </resources>
