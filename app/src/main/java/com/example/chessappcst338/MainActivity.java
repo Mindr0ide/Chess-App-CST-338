@@ -19,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
     private int selectedX = -1;
     private int selectedY = -1;
     private boolean isPieceSelected = false;
+    private Button[][] chessSquares = new Button[8][8]; // Track all squares
     ArrayList<Move> currentPossibleMoves = new ArrayList<>();
 
     private static final int BOARD_SIZE = 8;
@@ -26,17 +27,32 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main); // This uses your XML layout
 
+        // Initialize game components
         game = new Game();
         game.getBoard().reset();
 
-        findViewById(R.id.undoButton).setOnClickListener(v -> {
+        // Set up undo button from your layout
+        Button undoButton = findViewById(R.id.undoButton);
+        undoButton.setOnClickListener(v -> {
+            updateStatusText("");
             game.undo();
+            updateBoardDisplay();
+            resetSelection();
         });
 
+        // Initialize chess board from your layout
         LinearLayout chessBoard = findViewById(R.id.chessBoard);
         createChessBoard(chessBoard);
+        updateBoardDisplay();
+    }
+
+    private void updateStatusText(String message) {
+        TextView statusText = findViewById(R.id.statusText);
+        if (statusText != null) {
+            statusText.setText(message);
+        }
     }
 
     private final View.OnClickListener squareClickListener = new View.OnClickListener() {
@@ -45,12 +61,10 @@ public class MainActivity extends AppCompatActivity {
             String tag = (String) v.getTag();
             int row = Character.getNumericValue(tag.charAt(7));
             int col = Character.getNumericValue(tag.charAt(8));
-
             Piece clickedPiece = game.getBoard().getPieceAt(row, col);
 
-            // Case 1: No piece currently selected
+
             if (!isPieceSelected) {
-                // Only allow selecting pieces of the current turn's color
                 if (clickedPiece != null &&
                         ((game.isWhiteTurn() && clickedPiece.getColor().equals("white")) ||
                                 (!game.isWhiteTurn() && clickedPiece.getColor().equals("black")))) {
@@ -59,81 +73,90 @@ public class MainActivity extends AppCompatActivity {
                     selectedY = col;
                     isPieceSelected = true;
                     currentPossibleMoves = clickedPiece.possibleMoves(row, col, game.getBoard());
-                    //highlightPossibleMoves();
+
+                    // Update status text instead of button text
+                    updateStatusText("Selected " + clickedPiece.getName() + " at " +
+                            getChessNotation(selectedX, selectedY) +
+                            "\nPossible moves: " + formatPossibleMoves());
                 }
-            }
-            // Case 2: Piece already selected - attempt to move
-            else {
-                // Check if this is a valid move destination
+            } else {
                 for (Move move : currentPossibleMoves) {
                     if (move.getToX() == row && move.getToY() == col) {
                         game.play(move);
+                        updateStatusText("Moved " + move.getPiece().getName() +
+                                " from " + getChessNotation(move.getFromX(), move.getFromY()) +
+                                " to " + getChessNotation(move.getToX(), move.getToY()));
                         updateBoardDisplay();
-                        break;
+                        resetSelection();
+                        return;
                     }
                 }
-                // Reset selection whether move was made or not
                 resetSelection();
             }
         }
     };
 
-    private void highlightPossibleMoves() {
-        resetSquareColors(); // Reset all squares first
+    private String getChessNotation(int row, int col) {
+        char file = (char) ('a' + col);
+        int rank = 8 - row;
+        return "" + file + rank;
+    }
 
+    private String formatPossibleMoves() {
+        StringBuilder sb = new StringBuilder();
+        for (Move move : currentPossibleMoves) {
+            sb.append(getChessNotation(move.getToX(), move.getToY())).append(" ");
+        }
+        return sb.toString().trim();
+    }
+
+    private void showPossibleMovesAsText() {
         // Highlight selected piece
-        String selectedId = "square_" + selectedX + selectedY;
-        int selectedResId = getResources().getIdentifier(selectedId, "id", getPackageName());
-        Button selectedButton = findViewById(selectedResId);
-        selectedButton.setBackgroundColor(Color.parseColor("#6495ED")); // Cornflower blue
+        if (selectedX >= 0 && selectedY >= 0) {
+            Button selectedButton = chessSquares[selectedX][selectedY];
+            if (selectedButton != null) {
+                selectedButton.setBackgroundColor(Color.parseColor("#6495ED")); // Blue
+            }
+        }
 
         // Highlight possible moves
         for (Move move : currentPossibleMoves) {
-            String moveId = "square_" + move.getToX() + move.getToY();
-            int moveResId = getResources().getIdentifier(moveId, "id", getPackageName());
-            Button moveButton = findViewById(moveResId);
+            if (move.getToX() >= 0 && move.getToX() < 8 &&
+                    move.getToY() >= 0 && move.getToY() < 8) {
 
-            // Different color for capture moves
-            if (game.getBoard().getPieceAt(move.getToX(), move.getToY()) != null) {
-                moveButton.setBackgroundColor(Color.parseColor("#FF6347")); // Tomato (for captures)
-            } else {
-                moveButton.setBackgroundColor(Color.parseColor("#90EE90")); // Light green
+                Button moveButton = chessSquares[move.getToX()][move.getToY()];
+                if (moveButton != null) {
+                    if (game.getBoard().getPieceAt(move.getToX(), move.getToY()) != null) {
+                        moveButton.setBackgroundColor(Color.parseColor("#FF6347")); // Red (capture)
+                    } else {
+                        moveButton.setBackgroundColor(Color.parseColor("#90EE90")); // Green (move)
+                    }
+                }
             }
         }
     }
 
     private void resetSelection() {
         selectedX = -1;
-        selectedY =  -1;
+        selectedY = -1;
+        isPieceSelected = false;
         currentPossibleMoves.clear();
-        resetSquareColors();
+        updateBoardDisplay(); // This will reset all text displays
     }
 
     private void createChessBoard(LinearLayout chessBoard) {
-        // Define colors
-        int lightColor = Color.parseColor("#F0D9B5");
-        int darkColor = Color.parseColor("#B58863");
+        // Clear any existing views
+        chessBoard.removeAllViews();
 
-        // Get screen dimensions
+        chessSquares = new Button[8][8];
+
+        // Calculate square size based on screen dimensions
         DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getCurrentWindowMetrics();
-
-        // Calculate maximum possible square size that fits the screen
-        int screenWidth = displayMetrics.widthPixels;
-        int screenHeight = displayMetrics.heightPixels;
-
-        // Account for margins (1px per side for each square) and padding (4dp)
-        int totalMargins = BOARD_SIZE * 2 * 2; // 1px margin on both sides for each square
-        int paddingPx = (int) (4 * getResources().getDisplayMetrics().density);
-
-        // Calculate square size based on smaller dimension (width or height)
-        int maxPossibleSize = Math.min(
-                (screenWidth - totalMargins - (2 * paddingPx)) / BOARD_SIZE,
-                (screenHeight - totalMargins - (2 * paddingPx)) / BOARD_SIZE
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int squareSize = Math.min(
+                (displayMetrics.widthPixels - chessBoard.getPaddingLeft() - chessBoard.getPaddingRight()) / BOARD_SIZE,
+                (displayMetrics.heightPixels / 2) / BOARD_SIZE // Only use half screen height for board
         );
-
-        // Set a reasonable minimum size
-        int squareSize = Math.max(maxPossibleSize, (int) (40 * getResources().getDisplayMetrics().density));
 
         for (int row = 0; row < BOARD_SIZE; row++) {
             LinearLayout rowLayout = new LinearLayout(this);
@@ -145,8 +168,6 @@ public class MainActivity extends AppCompatActivity {
 
             for (int col = 0; col < BOARD_SIZE; col++) {
                 Button square = new Button(this);
-
-                // Set square size based on calculated dimensions
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                         squareSize,
                         squareSize
@@ -154,36 +175,31 @@ public class MainActivity extends AppCompatActivity {
                 params.setMargins(1, 1, 1, 1);
                 square.setLayoutParams(params);
 
-                // Alternate colors
+                // Set alternating colors
                 if ((row + col) % 2 == 0) {
-                    square.setBackgroundColor(lightColor);
+                    square.setBackgroundColor(Color.parseColor("#F0D9B5")); // Light
                 } else {
-                    square.setBackgroundColor(darkColor);
+                    square.setBackgroundColor(Color.parseColor("#B58863")); // Dark
                 }
 
-                // Add chess piece text (optional)
-                if (row == 0 || row == 7 || row == 1 || row == 6) {
-                    setInitialPieces(square, row, col);
-                }
+                // Set initial pieces
+                setInitialPieces(square, row, col);
 
-                // Set tag to identify position
-                square.setTag("square_" + row + col);
+                String coordinateId = "square_" + row + col;
+                square.setTag(coordinateId);
                 square.setOnClickListener(squareClickListener);
+                square.setId(View.generateViewId()); // Still generate a unique ID
 
-                // Make text fit better
+                // Store the mapping between coordinate and ID
+                getResources().getIdentifier(coordinateId, "id", getPackageName());
+
+                chessSquares[row][col] = square;
+                // Text styling
                 square.setTextSize(TypedValue.COMPLEX_UNIT_SP, squareSize / 3);
                 square.setPadding(0, 0, 0, 0);
 
-                String coordinate = "square_" + row + col;
-                square.setTag(coordinate);
-
-                // Optional: Also set as ID if needed
-                int id = View.generateViewId();
-                square.setId(id);
-
                 rowLayout.addView(square);
             }
-
             chessBoard.addView(rowLayout);
         }
     }
@@ -238,6 +254,44 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void updateBoardDisplay() {
+        Board board = game.getBoard();
+        TextView statusText = findViewById(R.id.statusText);
+
+        // Update status text
+        if (statusText != null) {
+            statusText.setText(game.isWhiteTurn() ? "White's turn" : "Black's turn");
+        }
+
+        // Update all squares on the board
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                Button squareButton = chessSquares[row][col];
+                if (squareButton != null) {
+                    Piece piece = board.getPieceAt(row, col);
+
+                    // Update piece display
+                    squareButton.setText(piece != null ? getPieceSymbol(piece) : "");
+                    squareButton.setTextColor(piece != null && piece.getColor().equals("white")
+                            ? Color.WHITE : Color.BLACK);
+
+                    // Reset background color
+                    if ((row + col) % 2 == 0) {
+                        squareButton.setBackgroundColor(Color.parseColor("#F0D9B5")); // Light
+                    } else {
+                        squareButton.setBackgroundColor(Color.parseColor("#B58863")); // Dark
+                    }
+                }
+            }
+        }
+
+        // Highlight selected piece and possible moves if one is selected
+        if (isPieceSelected) {
+            showPossibleMovesAsText();
+        }
+    }
+
+
     private String getPieceSymbol(Piece piece) {
         switch (piece.getName()) {
             case "rook": return piece.getColor().equals("white") ? "♖" : "♜";
@@ -249,57 +303,49 @@ public class MainActivity extends AppCompatActivity {
             default: return "";
         }
     }
-    private void updateBoardDisplay() {
-        Board board = game.getBoard();
-
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                String buttonId = "square_" + row + col;
-                int resId = getResources().getIdentifier(buttonId, "id", getPackageName());
-                Button squareButton = findViewById(resId);
-
-                Piece piece = board.getPieceAt(row, col);
-                squareButton.setText(piece != null ? getPieceSymbol(piece) : "");
-                squareButton.setTextColor(piece != null && piece.getColor().equals("white") ?
-                        Color.WHITE : Color.BLACK);
-            }
-        }
-    }
 
     private void highlightMove(Move move) {
-        // Reset all square backgrounds first
-        resetSquareColors();
-
-        // Get resources for highlight colors
-        int fromHighlight = Color.parseColor("#FFFF00"); // Yellow
-        int toHighlight = Color.parseColor("#FFA500");   // Orange
-
-        // Highlight from square
+        // Highlight from square with [ ]
         String fromId = "square_" + move.getFromX() + move.getFromY();
         int fromResId = getResources().getIdentifier(fromId, "id", getPackageName());
         Button fromButton = findViewById(fromResId);
-        fromButton.setBackgroundColor(fromHighlight);
+        if (fromButton != null) {
+            String currentText = fromButton.getText().toString();
+            fromButton.setText("[" + currentText + "]");
+        }
 
-        // Highlight to square
-        String toId = "square_" + move.getFromX() + move.getFromY();
+        // Highlight to square with ( )
+        String toId = "square_" + move.getToX() + move.getToY();
         int toResId = getResources().getIdentifier(toId, "id", getPackageName());
         Button toButton = findViewById(toResId);
-        toButton.setBackgroundColor(toHighlight);
+        if (toButton != null) {
+            String currentText = toButton.getText().toString();
+            if (currentText.isEmpty()) {
+                toButton.setText("( )");
+            } else {
+                toButton.setText("(" + currentText + ")");
+            }
+        }
     }
 
     private void resetSquareColors() {
+        // Just reset colors without text modifications
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
-                String buttonId = "square_" + row + col;
-                int resId = getResources().getIdentifier(buttonId, "id", getPackageName());
-                Button squareButton = findViewById(resId);
-
-//                if ((row + col) % 2 == 0) {
-//                    squareButton.setBackgroundColor(Color.parseColor("#F0D9B5"));
-//                } else {
-//                    squareButton.setBackgroundColor(Color.parseColor("#B58863"));
-//                }
+                Button square = chessSquares[row][col];
+                if (square != null) {
+                    if ((row + col) % 2 == 0) {
+                        square.setBackgroundColor(Color.parseColor("#F0D9B5"));
+                    } else {
+                        square.setBackgroundColor(Color.parseColor("#B58863"));
+                    }
+                }
             }
         }
+    }
+
+    private int getChessSquareId(int row, int col) {
+        String coordinateId = "square_" + row + col;
+        return getResources().getIdentifier(coordinateId, "id", getPackageName());
     }
 }

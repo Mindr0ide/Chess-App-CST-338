@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public class Rook extends Piece {
 
-    public Rook(String color) {
-        super(color, "rook");
+    public Rook(String color, int x, int y) {
+        super(color, "rook", x, y);
     }
 
     @Override
@@ -26,12 +26,12 @@ public class Rook extends Piece {
                     Piece piece = board.getPieceAt(newX, newY);
                     if (piece == null) 
                     {
-                        moves.add(new Move(x, y, newX, newY, this, board.getPieceAt(newX, newY)));
+                        moves.add(new Move(x, y, newX, newY, this));
                         j++;
                     } 
                     else if (!piece.getColor().equals(this.getColor())) 
                     {
-                        moves.add(new Move(x, y, newX, newY, this, board.getPieceAt(newX, newY)));
+                        moves.add(new Move(x, y, newX, newY, this));
                         break;
                     } 
                     else 

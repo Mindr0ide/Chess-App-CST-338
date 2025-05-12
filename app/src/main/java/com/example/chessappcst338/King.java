@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public class King extends Piece {
 
-    public King(String color) {
-        super(color, "king");
+    public King(String color, int x, int y) {
+        super(color, "king", x, y);
     }
 
     @Override
@@ -23,9 +23,9 @@ public class King extends Piece {
                 Piece piece = board.getPieceAt(newX, newY);
                 
                 if (piece == null)
-                    moves.add(new Move(x, y, newX, newY, this, board.getPieceAt(newX, newY)));
+                    moves.add(new Move(x, y, newX, newY, this));
                 else if (!piece.getColor().equals(this.getColor()))
-                    moves.add(new Move(x, y, newX, newY, this, board.getPieceAt(newX, newY)));
+                    moves.add(new Move(x, y, newX, newY, this));
             } 
             
         }

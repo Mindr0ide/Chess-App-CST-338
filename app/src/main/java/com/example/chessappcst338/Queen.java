@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public class Queen extends Piece {
 
-    public Queen(String color) {
-        super(color, "queen");
+    public Queen(String color, int x, int y) {
+        super(color, "queen", x, y);
     }
 
     @Override
@@ -26,12 +26,12 @@ public class Queen extends Piece {
                     Piece piece = board.getPieceAt(newX, newY);
                     if (piece == null) 
                     {
-                        moves.add(new Move(x, y, newX, newY, this, board.getPieceAt(newX, newY)));
+                        moves.add(new Move(x, y, newX, newY, this));
                         j++;
                     } 
                     else if (!piece.getColor().equals(this.getColor())) 
                     {
-                        moves.add(new Move(x, y, newX, newY, this, board.getPieceAt(newX, newY)));
+                        moves.add(new Move(x, y, newX, newY, this));
                         break;
                     } 
                     else 

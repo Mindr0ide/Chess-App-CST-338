@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public class Knight extends Piece {
 
-    public Knight(String color) {
-        super(color, "knight");
+    public Knight(String color, int x, int y) {
+        super(color, "knight", x, y);
     }
 
     @Override
@@ -21,7 +21,7 @@ public class Knight extends Piece {
             if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
                 Piece target = board.getPieceAt(newX, newY);
                 if (target == null || !target.color.equals(this.color)) {
-                    moves.add(new Move(x, y, newX, newY, this, board.getPieceAt(newX, newY)));
+                    moves.add(new Move(x, y, newX, newY, this));
 
                 }
             }

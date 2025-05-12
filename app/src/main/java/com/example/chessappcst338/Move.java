@@ -9,13 +9,13 @@ public class Move {
 
     private Piece capturedPiece;
 
-    public Move(int fromX, int fromY, int toX, int toY, Piece piece, Piece capturedPiece) {
+    public Move(int fromX, int fromY, int toX, int toY, Piece piece/*, Piece capturedPiece*/) {
         this.fromX = fromX;
         this.fromY = fromY;
         this.toX = toX;
         this.toY = toY;
         this.piece = piece;
-        this.capturedPiece = capturedPiece;
+        /*this.capturedPiece = capturedPiece;*/
     }
 
     public int getToX() {

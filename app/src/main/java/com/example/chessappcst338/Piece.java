@@ -5,11 +5,14 @@ import java.util.ArrayList;
 public abstract class Piece {
     public String color;
     public String name;
-//    int x, y;
+    private int x;
+    private int y;
 
-    public Piece(String color, String name/*, int x, int y*/) {
+    public Piece(String color, String name, int x, int y) {
         this.color = color;
         this.name = name;
+        this.x = x;
+        this.y = y;
     }
 
     public String getColor() {
@@ -24,13 +27,13 @@ public abstract class Piece {
 //        return (x, y);
 //    }
 
-//    public int getX() {
-//        return x;
-//    }
-//
-//    public int getY() {
-//        return y;
-//    }
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
 //
 //    public void setPos(int x, int y) {
 //        this.x = x;
