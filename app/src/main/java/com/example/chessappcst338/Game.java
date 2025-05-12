@@ -15,7 +15,7 @@ public class Game {
     }
 
     public void play(Move move){
-        board.setPieceAt(move.getX(), move.getY(), move.getPiece());
+        board.setPieceAt(move.getToX(), move.getToY(), move.getPiece());
 //        board.reset();
 //        while(true){
 //            this.display();
@@ -49,10 +49,9 @@ public class Game {
         if(!history.isEmpty()){
             Move lastMove = history.pop();
             // TODO: undo the move on the board
+            board.setPieceAt(lastMove.getFromX(), lastMove.getFromY(), lastMove.getPiece()); // put the piece back on the board
 
-
-
-
+            board.setPieceAt(lastMove.getToX(), lastMove.getToY(), lastMove.getCapturedPiece()); // put the captured piece back on the board
 
             isWhiteTurn = !isWhiteTurn;
         } else {
