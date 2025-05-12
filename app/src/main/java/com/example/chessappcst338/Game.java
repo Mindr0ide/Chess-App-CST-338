@@ -7,6 +7,18 @@ public class Game {
     private Stack<Move> history;
     private boolean isWhiteTurn;
 
+    public Board getBoard() {
+        return board;
+    }
+
+    public Stack<Move> getHistory() {
+        return history;
+    }
+
+    public boolean isWhiteTurn() {
+        return isWhiteTurn;
+    }
+
     public Game() {
         board = new Board();
         board.reset(); // Active l'initialisation complète du plateau

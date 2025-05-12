@@ -14,34 +14,29 @@ public class Pawn extends Piece {
         int dir = color.equals("white") ? -1 : 1;
         int startRow = color.equals("white") ? 6 : 1;
 
-        if (y == startRow &&
-                board.getPieceAt(x, y + dir) == null &&
-                board.getPieceAt(x, y + 2 * dir) == null) {
-//            moves.add(new Move(x, y + 2 * dir, this));
-            moves.add(new Move(x, y, x, y + 2 * dir, this, board.getPieceAt(x, y + 2 * dir)));
-
+        // Forward move (1 square)
+        if (y + dir >= 0 && y + dir < 8 && board.getPieceAt(x, y + dir) == null) {
+            moves.add(new Move(x, y, x, y + dir, this, null));
         }
 
-        if (y + dir >= 0 && y + dir < 8 && board.getPieceAt(x, y + 1) == null) {
-            moves.add(new Move(x, y, x, y + dir, this, board.getPieceAt(x, y + dir)));
-
+        // Initial double move
+        if (y == startRow && board.getPieceAt(x, y + dir) == null
+                && board.getPieceAt(x, y + 2 * dir) == null) {
+            moves.add(new Move(x, y, x, y + 2 * dir, this, null));
         }
 
+        // Capture moves
         if (x - 1 >= 0 && y + dir >= 0 && y + dir < 8) {
             Piece diagLeft = board.getPieceAt(x - 1, y + dir);
             if (diagLeft != null && !diagLeft.color.equals(this.color)) {
-//                moves.add(new Move(x - 1, y + 1, this));
-                moves.add(new Move(x, y, x - 1, y + dir, this, board.getPieceAt(x, y + dir)));
-
+                moves.add(new Move(x, y, x - 1, y + dir, this, diagLeft));
             }
         }
 
-        if (x + 1 >= 0 && y + dir >= 0 && y + dir < 8) {
+        if (x + 1 < 8 && y + dir >= 0 && y + dir < 8) {
             Piece diagRight = board.getPieceAt(x + 1, y + dir);
             if (diagRight != null && !diagRight.color.equals(this.color)) {
-//                moves.add(new Move(x + 1, y + 1, this));
-                moves.add(new Move(x, y, x + 1, y + dir, this, board.getPieceAt(x, y + dir)));
-
+                moves.add(new Move(x, y, x + 1, y + dir, this, diagRight));
             }
         }
 
