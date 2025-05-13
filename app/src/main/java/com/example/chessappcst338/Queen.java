@@ -26,12 +26,14 @@ public class Queen extends Piece {
                     Piece piece = board.getPieceAt(newX, newY);
                     if (piece == null) 
                     {
+                        // normal move
                         moves.add(new Move(x, y, newX, newY, this));
                         j++;
                     } 
                     else if (!piece.getColor().equals(this.getColor())) 
                     {
-                        moves.add(new Move(x, y, newX, newY, this));
+                        // capture move
+                        moves.add(new Move(x, y, newX, newY, this, piece));
                         break;
                     } 
                     else 

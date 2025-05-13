@@ -25,7 +25,7 @@ public class King extends Piece {
                 if (piece == null)
                     moves.add(new Move(x, y, newX, newY, this));
                 else if (!piece.getColor().equals(this.getColor()))
-                    moves.add(new Move(x, y, newX, newY, this));
+                    moves.add(new Move(x, y, newX, newY, this, piece));
             } 
             
         }

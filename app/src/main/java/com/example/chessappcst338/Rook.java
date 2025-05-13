@@ -31,7 +31,8 @@ public class Rook extends Piece {
                     } 
                     else if (!piece.getColor().equals(this.getColor())) 
                     {
-                        moves.add(new Move(x, y, newX, newY, this));
+                        // capture move
+                        moves.add(new Move(x, y, newX, newY, this, piece));
                         break;
                     } 
                     else 

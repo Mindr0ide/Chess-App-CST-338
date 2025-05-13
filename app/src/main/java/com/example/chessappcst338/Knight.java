@@ -21,7 +21,7 @@ public class Knight extends Piece {
             if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
                 Piece target = board.getPieceAt(newX, newY);
                 if (target == null || !target.color.equals(this.color)) {
-                    moves.add(new Move(x, y, newX, newY, this));
+                    moves.add(new Move(x, y, newX, newY, this, target));
 
                 }
             }

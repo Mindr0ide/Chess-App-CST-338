@@ -84,20 +84,16 @@ public class BoardTest extends TestCase {
     public void testGetPieceAt() {
         Board board = new Board();
         board.reset();
-
         assertEquals("black", board.getPieceAt(0, 0).getColor());
         assertEquals("rook", board.getPieceAt(0, 0).getName());
-
         assertNull(board.getPieceAt(2, 2));
     }
 
     public void testSetPieceAt() {
         Board board = new Board();
         board.reset();
-
-        Piece piece = new Queen("white");
+        Piece piece = new Queen("white", 4,4);
         board.setPieceAt(4, 4, piece);
-
         assertEquals(piece, board.getPieceAt(4, 4));
     }
 }

@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         game = new Game();
         game.getBoard().reset();
 
-        // Set up undo and reset button
+        // Setup undo and reset button
         Button undoButton = findViewById(R.id.undoButton);
         undoButton.setOnClickListener(v -> {
             updateStatusText("");
@@ -40,21 +40,21 @@ public class MainActivity extends AppCompatActivity {
             updateBoardDisplay();
             resetSelection();
             if (game.isGameOver()) {
-                enableBoard(); // Re-enable board if game was over
+                enableBoard();
             }
         });
 
         Button resetButton = findViewById(R.id.resetButton);
         resetButton.setOnClickListener(v -> {
             updateStatusText("");
-            game = new Game(); // Fresh game instance
+            game = new Game();
             game.getBoard().reset();
             updateBoardDisplay();
             resetSelection();
             enableBoard();
         });
 
-        // Initialize chess board
+        // initialize chess board
         LinearLayout chessBoard = findViewById(R.id.chessBoard);
         createChessBoard(chessBoard);
         updateBoardDisplay();
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
 
             if (game.isGameOver()) {
-                return; // Ignore clicks when game is over
+                return;
             }
 
             if (!isPieceSelected) {
@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
                 (winner.equals("white") ? "White" : "Black") + " wins by capturing the king!";
         updateStatusText(message);
 
-        // Disable further moves
+        // disable further moves
         disableBoard();
     }
 
@@ -197,12 +197,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createChessBoard(LinearLayout chessBoard) {
-        // Clear any existing views
         chessBoard.removeAllViews();
-
         chessSquares = new Button[8][8];
 
-        // Calculate square size based on screen dimensions
+        // calculation of the square size based on screen dimensions
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int squareSize = Math.min(
