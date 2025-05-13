@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
     private int selectedX = -1;
     private int selectedY = -1;
     private boolean isPieceSelected = false;
-    private Button[][] chessSquares = new Button[8][8]; // Track all squares
+    private Button[][] chessSquares = new Button[8][8];
     ArrayList<Move> currentPossibleMoves = new ArrayList<>();
 
     private static final int BOARD_SIZE = 8;
@@ -27,22 +27,34 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main); // This uses your XML layout
+        setContentView(R.layout.activity_main);
 
-        // Initialize game components
         game = new Game();
         game.getBoard().reset();
 
-        // Set up undo button from your layout
+        // Set up undo and reset button
         Button undoButton = findViewById(R.id.undoButton);
         undoButton.setOnClickListener(v -> {
             updateStatusText("");
             game.undo();
             updateBoardDisplay();
             resetSelection();
+            if (game.isGameOver()) {
+                enableBoard(); // Re-enable board if game was over
+            }
         });
 
-        // Initialize chess board from your layout
+        Button resetButton = findViewById(R.id.resetButton);
+        resetButton.setOnClickListener(v -> {
+            updateStatusText("");
+            game = new Game(); // Fresh game instance
+            game.getBoard().reset();
+            updateBoardDisplay();
+            resetSelection();
+            enableBoard();
+        });
+
+        // Initialize chess board
         LinearLayout chessBoard = findViewById(R.id.chessBoard);
         createChessBoard(chessBoard);
         updateBoardDisplay();
@@ -64,6 +76,10 @@ public class MainActivity extends AppCompatActivity {
             Piece clickedPiece = game.getBoard().getPieceAt(row, col);
 
 
+            if (game.isGameOver()) {
+                return; // Ignore clicks when game is over
+            }
+
             if (!isPieceSelected) {
                 if (clickedPiece != null &&
                         ((game.isWhiteTurn() && clickedPiece.getColor().equals("white")) ||
@@ -74,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                     isPieceSelected = true;
                     currentPossibleMoves = clickedPiece.possibleMoves(row, col, game.getBoard());
 
-                    // Update status text instead of button text
+                    // Update status text
                     updateStatusText("Selected " + clickedPiece.getName() + " at " +
                             getChessNotation(selectedX, selectedY) +
                             "\nPossible moves: " + formatPossibleMoves());
@@ -83,9 +99,13 @@ public class MainActivity extends AppCompatActivity {
                 for (Move move : currentPossibleMoves) {
                     if (move.getToX() == row && move.getToY() == col) {
                         game.play(move);
-                        updateStatusText("Moved " + move.getPiece().getName() +
-                                " from " + getChessNotation(move.getFromX(), move.getFromY()) +
-                                " to " + getChessNotation(move.getToX(), move.getToY()));
+                        if (game.isGameOver()) {
+                            displayGameOver();
+                        } else {
+                            updateStatusText("Moved " + move.getPiece().getName() +
+                                    " from " + getChessNotation(move.getFromX(), move.getFromY()) +
+                                    " to " + getChessNotation(move.getToX(), move.getToY()));
+                        }
                         updateBoardDisplay();
                         resetSelection();
                         return;
@@ -95,6 +115,38 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
+    private void displayGameOver() {
+        String winner = game.getWinner();
+        String message = "Game Over! " +
+                (winner.equals("white") ? "White" : "Black") + " wins by capturing the king!";
+        updateStatusText(message);
+
+        // Disable further moves
+        disableBoard();
+    }
+
+    private void disableBoard() {
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                Button square = chessSquares[row][col];
+                if (square != null) {
+                    square.setEnabled(false);
+                }
+            }
+        }
+    }
+
+    private void enableBoard() {
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                Button square = chessSquares[row][col];
+                if (square != null) {
+                    square.setEnabled(true);
+                }
+            }
+        }
+    }
 
     private String getChessNotation(int row, int col) {
         char file = (char) ('a' + col);
@@ -141,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
         selectedY = -1;
         isPieceSelected = false;
         currentPossibleMoves.clear();
-        updateBoardDisplay(); // This will reset all text displays
+        updateBoardDisplay();
     }
 
     private void createChessBoard(LinearLayout chessBoard) {
@@ -188,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
                 String coordinateId = "square_" + row + col;
                 square.setTag(coordinateId);
                 square.setOnClickListener(squareClickListener);
-                square.setId(View.generateViewId()); // Still generate a unique ID
+                square.setId(View.generateViewId());
 
                 // Store the mapping between coordinate and ID
                 getResources().getIdentifier(coordinateId, "id", getPackageName());
@@ -258,6 +310,13 @@ public class MainActivity extends AppCompatActivity {
         Board board = game.getBoard();
         TextView statusText = findViewById(R.id.statusText);
 
+        if (game.isGameOver()) {
+            String winner = game.getWinner();
+            statusText.setText("Game Over! " +
+                    (winner.equals("white") ? "White" : "Black") + " wins!");
+            return;
+        }
+
         // Update status text
         if (statusText != null) {
             statusText.setText(game.isWhiteTurn() ? "White's turn" : "Black's turn");
@@ -302,50 +361,5 @@ public class MainActivity extends AppCompatActivity {
             case "pawn": return piece.getColor().equals("white") ? "♙" : "♟";
             default: return "";
         }
-    }
-
-    private void highlightMove(Move move) {
-        // Highlight from square with [ ]
-        String fromId = "square_" + move.getFromX() + move.getFromY();
-        int fromResId = getResources().getIdentifier(fromId, "id", getPackageName());
-        Button fromButton = findViewById(fromResId);
-        if (fromButton != null) {
-            String currentText = fromButton.getText().toString();
-            fromButton.setText("[" + currentText + "]");
-        }
-
-        // Highlight to square with ( )
-        String toId = "square_" + move.getToX() + move.getToY();
-        int toResId = getResources().getIdentifier(toId, "id", getPackageName());
-        Button toButton = findViewById(toResId);
-        if (toButton != null) {
-            String currentText = toButton.getText().toString();
-            if (currentText.isEmpty()) {
-                toButton.setText("( )");
-            } else {
-                toButton.setText("(" + currentText + ")");
-            }
-        }
-    }
-
-    private void resetSquareColors() {
-        // Just reset colors without text modifications
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                Button square = chessSquares[row][col];
-                if (square != null) {
-                    if ((row + col) % 2 == 0) {
-                        square.setBackgroundColor(Color.parseColor("#F0D9B5"));
-                    } else {
-                        square.setBackgroundColor(Color.parseColor("#B58863"));
-                    }
-                }
-            }
-        }
-    }
-
-    private int getChessSquareId(int row, int col) {
-        String coordinateId = "square_" + row + col;
-        return getResources().getIdentifier(coordinateId, "id", getPackageName());
     }
 }

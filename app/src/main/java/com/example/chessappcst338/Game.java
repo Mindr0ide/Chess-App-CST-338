@@ -6,6 +6,8 @@ public class Game {
     private Board board;
     private Stack<Move> history;
     private boolean isWhiteTurn;
+    private boolean gameOver;
+    private String winner;
 
     public Board getBoard() {
         return board;
@@ -26,7 +28,14 @@ public class Game {
         isWhiteTurn = true;
     }
 
+
     public void play(Move move) {
+        Piece captured = board.getPieceAt(move.getToX(), move.getToY());
+        if (captured != null && captured.getName().equals("king")) {
+            gameOver = true;
+            winner = isWhiteTurn ? "white" : "black";
+        }
+
         history.push(move);
         board.setPieceAt(move.getToX(), move.getToY(), move.getPiece());
         board.setPieceAt(move.getFromX(), move.getFromY(), null);
@@ -56,5 +65,22 @@ public class Game {
             }
             System.out.println();
         }
+    }
+
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public String getWinner() {
+        return winner;
+    }
+
+    public void reset() {
+        board.reset();
+        history.clear();
+        isWhiteTurn = true;
+        gameOver = false;
+        winner = null;
     }
 }
